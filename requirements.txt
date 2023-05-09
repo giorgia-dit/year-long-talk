@@ -1,0 +1,8 @@
+pandas==1.5.2
+matplotlib==3.5.3
+regex==2022.10.31
+Dateparser==1.1.5
+numpy==1.24.1
+simplemma==0.9.0
+spacy==3.4.2
+nltk==3.7
