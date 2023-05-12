@@ -6,4 +6,4 @@
 3. Run `main.py`.
 4. Open `script.R` and run it.
 5. When asked to input a file, choose the dataset exported from Python.
-6. The visualizations will be saved in the viz folder.
+6. The visualizations will be saved in the `viz/` folder.
