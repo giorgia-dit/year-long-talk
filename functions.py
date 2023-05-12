@@ -48,7 +48,7 @@ def clean_chat(chat_file, group_chat=0):
     pos = 0
 
     for line in clean_chat:
-        if re.findall("\A\d+[/]\d+[/]\d+", line):
+        if re.findall("^\[?\d+[/]\d+[/]\d+\,\s\d+\:\d+(\:\d+)?\]?", line):
             messages.append(line)
             pos += 1
         else:
@@ -66,25 +66,22 @@ def process_chat(chat):
     :param chat: list
     :return: pandas.DataFrame
     """
-    date = [chat[i].split(',')[0] for i in range(len(chat))]
-    # day = [int(d[0:2]) for d in date]
-    # month = [int(d[3:5]) for d in date]
-    # year = [int(d[-3:-1]) + 2000 for d in date]
+    info = [re.search("\[?\d+[/]\d+[/]\d+\,\s\d+\:\d+(\:\d+)?\]?\s(\-\s)?(\w[\w\s]+\w?)", line).group() for line in chat]
+
+    date = [re.search("\d+[/]\d+[/]\d+", line).group() for line in info]
     log.info("Extracted dates.")
 
-    time = [chat[i].split(',')[1].split('-')[0] for i in range(len(chat))]
-    time = [s.strip(' ') for s in time]
+    time = [re.search("\d+\:\d+", line).group() for line in info]
     log.info("Extracted times.")
 
-    name = [chat[i].split('-')[1].split(':')[0] for i in range(len(chat))]
+    datetime_span = [re.search("\[?\d+[/]\d+[/]\d+\,\s\d+\:\d+(\:\d+)?\]?\s(\-\s)?", line).span() for line in info]
+    name = [info[i][datetime_span[i][1]:] for i in range(len(info))]
     log.info("Extracted names.")
 
     content = []
     for i in range(len(chat)):
-        try:
-            content.append(chat[i].split(':')[2])
-        except IndexError:
-            content.append("testo mancante")
+        name_span = re.search(f"{name[i]}", chat[i]).span()
+        content.append(chat[i][name_span[1]+2:])
     log.info("Extracted contents.")
 
     df = pd.DataFrame(list(zip(date, time, name, content)), columns=['Date', 'Time', 'Name', 'Content'])
